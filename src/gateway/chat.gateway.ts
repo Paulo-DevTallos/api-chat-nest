@@ -16,8 +16,8 @@ export class ChatGateway {
 
   //create messages
   @SubscribeMessage('createChatMessage')
-  async create(@MessageBody() createGatewayDto: CreateGatewayDto) {
-    const message = await this.chatService.create(createGatewayDto);
+  async create(@MessageBody() createGatewayDto: CreateGatewayDto, @ConnectedSocket() client: Socket, ) {
+    const message = await this.chatService.create(createGatewayDto, client.id);
 
     this.server.emit('message', message);
 
@@ -34,13 +34,11 @@ export class ChatGateway {
     return this.chatService.identify(name, client.id) 
   }
 
-  @SubscribeMessage('Typing')
+  @SubscribeMessage('typing')
   async typing(@MessageBody('isTyping') isTyping: boolean, @ConnectedSocket() client: Socket) {
     const name = await this.chatService.getClientName(client.id) 
     
     client.broadcast.emit('typing', { name, isTyping })
-
-    return name
   }
 
   /*

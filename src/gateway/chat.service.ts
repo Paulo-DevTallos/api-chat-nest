@@ -6,10 +6,20 @@ import { GatewayEntity } from './entities/gateway.entity';
 export class ChatService {
   messages: GatewayEntity[] = [{ name: 'Marius', text: 'heeyooo' }]
   clientToUser = {}
+
+  identify(name: string, clientId: string) {
+    this.clientToUser[clientId] = name;
+
+    return Object.values(this.clientToUser)
+  }
+
   //create message
-  create(createGatewayDto: CreateGatewayDto) {
-    const message = { ...createGatewayDto }
-    this.messages.push(message);
+  async create(createGatewayDto: CreateGatewayDto, clientId: string) {
+    const message = {
+      name: this.clientToUser[clientId],
+      text: createGatewayDto.text
+    }
+    await this.messages.push(message);
      
     return message
   }
@@ -19,12 +29,7 @@ export class ChatService {
     return this.messages;
   }
 
-  identify(name: string, clientId: string) {
-    this.clientToUser[clientId] = name;
-
-    return Object.values(this.clientToUser)
-  }
-
+  //get client name
   getClientName(clientId: string) {
     return this.clientToUser[clientId]
   }
